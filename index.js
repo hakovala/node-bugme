@@ -16,9 +16,10 @@ function newTrackMethod(obj, name, cached) {
 	return function() {
 		var time = +new Date();
 		console.log(util.format(" * [ENTER] '%s.%s'", obj.constructor.name, name));
-		this[cached].apply(this, arguments);
+		var ret = this[cached].apply(this, arguments);
 		var elapsed = +new Date() - time;
 		console.log(util.format(" * [LEAVE] '%s.%s' (%d ms)", obj.constructor.name, name, elapsed));
+		return ret;
 	};
 }
 
