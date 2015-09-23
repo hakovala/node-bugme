@@ -27,17 +27,55 @@ function newTrackMethod(obj, name, cached) {
 /**
  * Wrap all object functions with tracker methods.
  */
-Bugme.track = function(obj) {
-	if (typeof obj === 'function') {
-		obj = obj.prototype;
+Bugme.track = function(obj, opt, parent) {
+	function buildFilter(list, def) {
+		if (!list) return function() { return def; };
+
+		if (typeof list === 'string') {
+					var re = new RegExp(list);
+					return re.test.bind(re);
+		}
+
+		if (Array.isArray(list)) {
+			var regs = list.map(function(i) {
+				if (typeof i === 'string')
+					var re = new RegExp(i);
+					return re.test.bind(re);
+				return i;
+			});
+			return function(v) {
+				return regs.some(function(e) {
+					return e(v);
+				});
+			}
+		};
+		return list;
 	}
 
+	opt = opt || {};
+
+	var include = buildFilter(opt.include, true);
+	var exclude = buildFilter(opt.exclude, false);
+	var recursive = !!opt.recursive;
+
 	for (var prop in obj) {
+		var name = (parent ? parent + '.' : '') + prop;
 		var cache = cacheName(prop);
 
 		if (typeof obj[prop] === 'function') {
-			obj[cache] = obj[prop];
-			obj[prop] = newTrackMethod(obj, prop, cache);
+			if (include(prop) && !exclude(prop)) {
+				obj[cache] = obj[prop];
+				obj[prop] = newTrackMethod(obj, name, cache);
+
+				// clone cache object properties to tracker
+				for (var p in obj[cache]) {
+					obj[prop][p] = obj[cache][p];
+				}
+			}
+			if (recursive) Bugme.track(obj[prop], opt, name);
+		}
+		if (typeof obj[prop] === 'object') {
+			if (recursive) Bugme.track(obj[prop], opt, name);
 		}
 	}
 };
@@ -47,12 +85,13 @@ Bugme.track = function(obj) {
  * Restoring orginal methods.
  */
 Bugme.untrack = function(obj) {
-	if (typeof obj === 'function') {
-		obj = obj.prototype;
-	}
-
 	for (var prop in obj) {
 		var cache = cacheName(prop);
+
+		// untrack recursively
+		if (typeof obj[prop] === 'function' || typeof obj[prop] === 'object') {
+			Bugme.untrack(obj[prop]);
+		}
 
 		if (obj[cache] && typeof obj[prop] === 'function') {
 			obj[prop] = obj[cache];
