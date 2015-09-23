@@ -14,11 +14,12 @@ function cacheName(name) {
  */
 function newTrackMethod(obj, name, cached) {
 	return function() {
+		var args = Array.prototype.slice.call(arguments);
 		var time = +new Date();
-		console.log(util.format(" * [ENTER] '%s.%s'", obj.constructor.name, name));
+		console.log(util.format(" => [ENTER] %s.%s %s", obj.constructor.name, name, util.inspect(args)));
 		var ret = this[cached].apply(this, arguments);
 		var elapsed = +new Date() - time;
-		console.log(util.format(" * [LEAVE] '%s.%s' (%d ms)", obj.constructor.name, name, elapsed));
+		console.log(util.format(" <= [LEAVE] %s.%s (%d ms) => %s", obj.constructor.name, name, elapsed, util.inspect(ret)));
 		return ret;
 	};
 }
