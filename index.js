@@ -25,33 +25,39 @@ function newTrackMethod(obj, name, cached) {
 }
 
 /**
+ * Build filter test function.
+ * String or array of strings is evaluated as regexps test.
+ * If filter is false then `def` value is always returned.
+ * If filter is function then it's used as is.
+ */
+function buildFilter(filter, def) {
+	if (!filter) return function() { return def; };
+
+	if (typeof filter === 'string') {
+				var re = new RegExp(filter);
+				return re.test.bind(re);
+	}
+
+	if (Array.isArray(filter)) {
+		var regs = filter.map(function(i) {
+			if (typeof i === 'string')
+				var re = new RegExp(i);
+				return re.test.bind(re);
+			return i;
+		});
+		return function(v) {
+			return regs.some(function(e) {
+				return e(v);
+			});
+		}
+	};
+	return filter;
+}
+
+/**
  * Wrap all object functions with tracker methods.
  */
 Bugme.track = function(obj, opt, parent) {
-	function buildFilter(list, def) {
-		if (!list) return function() { return def; };
-
-		if (typeof list === 'string') {
-					var re = new RegExp(list);
-					return re.test.bind(re);
-		}
-
-		if (Array.isArray(list)) {
-			var regs = list.map(function(i) {
-				if (typeof i === 'string')
-					var re = new RegExp(i);
-					return re.test.bind(re);
-				return i;
-			});
-			return function(v) {
-				return regs.some(function(e) {
-					return e(v);
-				});
-			}
-		};
-		return list;
-	}
-
 	opt = opt || {};
 
 	var include = buildFilter(opt.include, true);
