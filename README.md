@@ -146,10 +146,10 @@ Instrument objects methods.
 
  * `obj`: object to instrument
  * `options`: instrumentation options
-   - `recursive`: instrument methods recursively
-   - `colors`: use colors when printing to terminal
-   - `showArguments`: print method arguments
-   - `showReturn`: print method return values
+   - `recursive`: instrument methods recursively (default: `false`)
+   - `colors`: use colors when printing to terminal (default: `false`)
+   - `showArguments`: print method arguments (default: `false`)
+   - `showReturn`: print method return values (default: `false`)
    - `include`: only include matching methods, can be string, regexp or array of those two
    - `exclude`: exclude matching methods, can be string, regexp or array of those two
  * `parent`: parent objects name to include in method call name
