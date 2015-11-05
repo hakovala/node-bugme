@@ -1,8 +1,21 @@
 {
   "name": "bugme",
+  "description": "Helper module for tracing object method calls",
   "version": "0.1.0",
   "main": "index.js",
+  "author": "Harri Kovalainen <hakovala@gmail.com>",
+  "repository": {
+  	"type": "git",
+  	"url": "https://github.com/hakovala/node-bugme.git"
+  },
   "dependencies": {
     "cli-color": "^1.1.0"
-  }
+  },
+  "license": "MIT",
+  "keywords": [
+  	"debug",
+  	"debugger",
+  	"log",
+  	"trace"
+  ]
 }
