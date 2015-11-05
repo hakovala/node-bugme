@@ -1,6 +1,7 @@
 "use strict";
 
 var util = require('util');
+var color = require('cli-color');
 var Bugme = module.exports = {};
 
 // create cache name
@@ -11,19 +12,25 @@ function cacheName(name) {
 Bugme.inspectArgument = util.inspect;
 Bugme.inspectReturn = util.inspect;
 
+var nocolor = function(v) { return v; };
+
 /**
  * Create wrapper method for tracking method calls.
  * Prints entry and leave messages and method run time.
  */
 function newTrackMethod(obj, name, cached, opt) {
+	var colorCall = opt.colors ? color.green : nocolor;
+	var colorReturn = opt.colors ? color.red : nocolor;
+	var colorElapsed = opt.colors ? color.blue : nocolor;
+
 	return function() {
 		var args = Array.prototype.slice.call(arguments);
 		var time = +new Date();
 
 		// format method call
-		var msg = ' --> ';
+		var msg = colorCall(' --> ');
 		msg += obj.constructor.name + '.' + name;
-		if (opt.showArguments) msg += '(' + Bugme.inspectArgument(args).slice(1, -1) + ')';
+		if (opt.showArguments) msg += '(' + Bugme.inspectArgument(args, { colors: opt.colors }).slice(1, -1) + ')';
 		console.log(msg);
 
 		// call tracked method
@@ -31,10 +38,10 @@ function newTrackMethod(obj, name, cached, opt) {
 		var elapsed = +new Date() - time;
 
 		// format method return
-		var msg = ' <-- ';
+		var msg = colorReturn(' <-- ');
 		msg += obj.constructor.name + '.' + name;
-		msg += '(' + elapsed + ' ms)';
-		if (opt.showReturn) msg += ' => ' + Bugme.inspectReturn(args).slice(1, -1);
+		msg += '(' + colorElapsed(elapsed + ' ms') + ')';
+		if (opt.showReturn) msg += ' => ' + Bugme.inspectReturn(args, { colors: opt.colors }).slice(1, -1);
 		console.log(msg);
 
 		return ret;
@@ -84,6 +91,7 @@ Bugme.track = function(obj, opt, parent) {
 	var trackOpt = {
 		showArguments: !!opt.showArguments,
 		showReturn: !!opt.showReturn,
+		colors: !!opt.colors,
 	};
 
 	for (var prop in obj) {

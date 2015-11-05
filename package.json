@@ -1,5 +1,8 @@
 {
-	"name": "bugme",
-	"version": "0.1.0",
-	"main": "index.js"
+  "name": "bugme",
+  "version": "0.1.0",
+  "main": "index.js",
+  "dependencies": {
+    "cli-color": "^1.1.0"
+  }
 }
