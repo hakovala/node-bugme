@@ -44,7 +44,7 @@ function newTrackMethod(obj, name, cached, opt) {
 		var msg = colorReturn(' <-- ');
 		msg += obj.constructor.name + '.' + name;
 		msg += '(' + colorElapsed(elapsed + ' ms') + ')';
-		if (opt.showReturn) msg += ' => ' + Bugme.inspectReturn(args, { colors: opt.colors });
+		if (opt.showReturn) msg += ' => ' + Bugme.inspectReturn(ret, { colors: opt.colors });
 		Bugme.print(msg);
 
 		return ret;
