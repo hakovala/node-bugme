@@ -12,14 +12,28 @@ function cacheName(name) {
  * Create wrapper method for tracking method calls.
  * Prints entry and leave messages and method run time.
  */
-function newTrackMethod(obj, name, cached) {
+function newTrackMethod(obj, name, cached, opt) {
 	return function() {
 		var args = Array.prototype.slice.call(arguments);
 		var time = +new Date();
-		console.log(util.format(" => [ENTER] %s.%s %s", obj.constructor.name, name, util.inspect(args)));
-		var ret = this[cached].apply(this, arguments);
+
+		// format method call
+		var msg = ' --> ';
+		msg += obj.constructor.name + '.' + name;
+		if (opt.showArguments) msg += '(' + util.inspect(args).slice(1, -1) + ')';
+		console.log(msg);
+
+		// call tracked method
+		var ret = obj[cached].apply(this, arguments);
 		var elapsed = +new Date() - time;
-		console.log(util.format(" <= [LEAVE] %s.%s (%d ms) => %s", obj.constructor.name, name, elapsed, util.inspect(ret)));
+
+		// format method return
+		var msg = ' <-- ';
+		msg += obj.constructor.name + '.' + name;
+		msg += '(' + elapsed + ' ms)';
+		if (opt.showReturn) msg += ' => ' + util.inspect(args).slice(1, -1);
+		console.log(msg);
+
 		return ret;
 	};
 }
@@ -64,24 +78,29 @@ Bugme.track = function(obj, opt, parent) {
 	var exclude = buildFilter(opt.exclude, false);
 	var recursive = !!opt.recursive;
 
+	var trackOpt = {
+		showArguments: !!opt.showArguments,
+		showReturn: !!opt.showReturn,
+	};
+
 	for (var prop in obj) {
 		var name = (parent ? parent + '.' : '') + prop;
 		var cache = cacheName(prop);
 
-		if (typeof obj[prop] === 'function') {
-			if (include(prop) && !exclude(prop)) {
+		if (include(prop) && !exclude(prop)) {
+			if (typeof obj[prop] === 'function') {
 				obj[cache] = obj[prop];
-				obj[prop] = newTrackMethod(obj, name, cache);
+				obj[prop] = newTrackMethod(obj, name, cache, trackOpt);
 
 				// clone cache object properties to tracker
 				for (var p in obj[cache]) {
 					obj[prop][p] = obj[cache][p];
 				}
+				if (recursive) Bugme.track(obj[prop], opt, name);
 			}
-			if (recursive) Bugme.track(obj[prop], opt, name);
-		}
-		if (typeof obj[prop] === 'object') {
-			if (recursive) Bugme.track(obj[prop], opt, name);
+			if (typeof obj[prop] === 'object') {
+				if (recursive) Bugme.track(obj[prop], opt, name);
+			}
 		}
 	}
 };
