@@ -8,6 +8,9 @@ function cacheName(name) {
 	return '___bugme_' + name;
 }
 
+Bugme.inspectArgument = util.inspect;
+Bugme.inspectReturn = util.inspect;
+
 /**
  * Create wrapper method for tracking method calls.
  * Prints entry and leave messages and method run time.
@@ -20,7 +23,7 @@ function newTrackMethod(obj, name, cached, opt) {
 		// format method call
 		var msg = ' --> ';
 		msg += obj.constructor.name + '.' + name;
-		if (opt.showArguments) msg += '(' + util.inspect(args).slice(1, -1) + ')';
+		if (opt.showArguments) msg += '(' + Bugme.inspectArgument(args).slice(1, -1) + ')';
 		console.log(msg);
 
 		// call tracked method
@@ -31,7 +34,7 @@ function newTrackMethod(obj, name, cached, opt) {
 		var msg = ' <-- ';
 		msg += obj.constructor.name + '.' + name;
 		msg += '(' + elapsed + ' ms)';
-		if (opt.showReturn) msg += ' => ' + util.inspect(args).slice(1, -1);
+		if (opt.showReturn) msg += ' => ' + Bugme.inspectReturn(args).slice(1, -1);
 		console.log(msg);
 
 		return ret;
