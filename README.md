@@ -158,6 +158,13 @@ Instrument objects methods.
 
 Remove instrumentation from object.
 
+### Bugme.dump(obj, depth)
+
+Alias for:
+```javascript
+console.log(util.inspect(obj, { showHidden: true, colors: true, depth: depth }));
+```
+
 ## Global options
 
 ### Bugme.inspectArgument(args, options)
