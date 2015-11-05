@@ -10,7 +10,7 @@ function cacheName(name) {
 }
 
 // use util.insect, but slice off surrounding square brackets
-var defaultInspect = function(obj, opt) { return util.inspect(obj, opt).slice(1, -1); };
+var defaultInspect = util.inspect;
 Bugme.inspectArgument = defaultInspect;
 Bugme.inspectReturn = defaultInspect;
 Bugme.print = console.log;
