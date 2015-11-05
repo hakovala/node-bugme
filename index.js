@@ -11,6 +11,7 @@ function cacheName(name) {
 
 Bugme.inspectArgument = util.inspect;
 Bugme.inspectReturn = util.inspect;
+Bugme.print = console.log;
 
 var nocolor = function(v) { return v; };
 
@@ -31,7 +32,7 @@ function newTrackMethod(obj, name, cached, opt) {
 		var msg = colorCall(' --> ');
 		msg += obj.constructor.name + '.' + name;
 		if (opt.showArguments) msg += '(' + Bugme.inspectArgument(args, { colors: opt.colors }).slice(1, -1) + ')';
-		console.log(msg);
+		Bugme.print(msg);
 
 		// call tracked method
 		var ret = obj[cached].apply(this, arguments);
@@ -42,7 +43,7 @@ function newTrackMethod(obj, name, cached, opt) {
 		msg += obj.constructor.name + '.' + name;
 		msg += '(' + colorElapsed(elapsed + ' ms') + ')';
 		if (opt.showReturn) msg += ' => ' + Bugme.inspectReturn(args, { colors: opt.colors }).slice(1, -1);
-		console.log(msg);
+		Bugme.print(msg);
 
 		return ret;
 	};
