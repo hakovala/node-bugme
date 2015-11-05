@@ -9,8 +9,10 @@ function cacheName(name) {
 	return '___bugme_' + name;
 }
 
-Bugme.inspectArgument = util.inspect;
-Bugme.inspectReturn = util.inspect;
+// use util.insect, but slice off surrounding square brackets
+var defaultInspect = function(obj, opt) { return util.inspect(obj, opt).slice(1, -1); };
+Bugme.inspectArgument = defaultInspect;
+Bugme.inspectReturn = defaultInspect;
 Bugme.print = console.log;
 
 var nocolor = function(v) { return v; };
@@ -31,7 +33,7 @@ function newTrackMethod(obj, name, cached, opt) {
 		// format method call
 		var msg = colorCall(' --> ');
 		msg += obj.constructor.name + '.' + name;
-		if (opt.showArguments) msg += '(' + Bugme.inspectArgument(args, { colors: opt.colors }).slice(1, -1) + ')';
+		if (opt.showArguments) msg += '(' + Bugme.inspectArgument(args, { colors: opt.colors }) + ')';
 		Bugme.print(msg);
 
 		// call tracked method
@@ -42,7 +44,7 @@ function newTrackMethod(obj, name, cached, opt) {
 		var msg = colorReturn(' <-- ');
 		msg += obj.constructor.name + '.' + name;
 		msg += '(' + colorElapsed(elapsed + ' ms') + ')';
-		if (opt.showReturn) msg += ' => ' + Bugme.inspectReturn(args, { colors: opt.colors }).slice(1, -1);
+		if (opt.showReturn) msg += ' => ' + Bugme.inspectReturn(args, { colors: opt.colors });
 		Bugme.print(msg);
 
 		return ret;
